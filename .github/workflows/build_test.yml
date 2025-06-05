@@ -10,20 +10,15 @@ on:
 jobs:
   unit_tests:
 
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [18.x, 20.x, 22.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+    runs-on: self-hosted
 
     steps:
     - name: Checkout the repository
       uses: actions/checkout@v4
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Use Node.js 20
       uses: actions/setup-node@v4
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: 20
     - name: Install dependencies
       run: npm install
     - name: Run integration tests
@@ -31,7 +26,7 @@ jobs:
 
   security_tests:
     needs: unit_tests
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
     - name: Checkout the repository
@@ -44,3 +39,15 @@ jobs:
       run: npm install
     - name: Run security tests
       run: npm audit
+
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: self-hosted
+    needs: security_tests
+    steps:
+      - name: Deploy to production
+        uses: johnbeynon/render-deploy-action@v0.0.8
+        with:
+          service-id: ${{ secrets.MY_RENDER_SERVICE_ID }}
+          api-key: ${{ secrets.MY_RENDER_API_KEY }}
+          wait-for-success: true
