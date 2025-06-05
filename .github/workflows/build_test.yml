@@ -10,7 +10,7 @@ on:
 jobs:
   unit_tests:
 
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
     - name: Checkout the repository
@@ -26,7 +26,7 @@ jobs:
 
   security_tests:
     needs: unit_tests
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
     - name: Checkout the repository
@@ -42,7 +42,7 @@ jobs:
 
   deploy:
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: security_tests
     steps:
       - name: Deploy to production
